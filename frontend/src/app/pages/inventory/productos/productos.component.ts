@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ProductoService } from '../../../services/producto.service';
 import { RubroService } from '../../../services/rubro.service';
 import { FamiliaService } from '../../../services/familia.service';
@@ -16,13 +16,30 @@ import Swal from 'sweetalert2';
 @Component({
     selector: 'app-productos',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule],
     templateUrl: './productos.component.html',
     styleUrls: ['./productos.component.css']
 })
 export class ProductosComponent implements OnInit {
     productos: Producto[] = [];
+    filteredProductos: Producto[] = [];
     loading = false;
+
+    // Filtros
+    searchTerm: string = '';
+    selectedRubroId: number | null = null;
+    selectedFamiliaId: number | null = null;
+    selectedEstado: string = '';
+    hasSearched: boolean = false;
+
+    // Dashboard
+    get totalActivos(): number {
+        return this.filteredProductos.filter(p => p.activo).length;
+    }
+
+    get totalInactivos(): number {
+        return this.filteredProductos.filter(p => !p.activo).length;
+    }
 
     showModal = false;
     isEdit = false;
@@ -94,6 +111,7 @@ export class ProductosComponent implements OnInit {
         this.productoService.getAll(true).subscribe({
             next: (data) => {
                 this.productos = data;
+                this.filteredProductos = data;
                 this.loading = false;
             },
             error: () => {
@@ -113,6 +131,59 @@ export class ProductosComponent implements OnInit {
         this.familiaService.getByRubro(idRubro, false).subscribe({
             next: (data) => this.familias = data
         });
+    }
+
+    onRubroFilterChange(): void {
+        this.selectedFamiliaId = null;
+        this.familias = [];
+        if (this.selectedRubroId) {
+            this.loadFamilias(this.selectedRubroId);
+        }
+        this.search();
+    }
+
+    search(): void {
+        this.hasSearched = true;
+        this.filteredProductos = this.productos.filter(p => {
+            let matchSearch = true;
+            if (this.searchTerm) {
+                const term = this.searchTerm.toLowerCase();
+                matchSearch = (p.sku?.toLowerCase().includes(term) || p.nombre.toLowerCase().includes(term));
+            }
+            
+            let matchRubro = true;
+            if (this.selectedRubroId) {
+                // p does not have idRubro directly in the list, but it has nombreFamilia, 
+                // wait, Producto may have idFamilia, let's check.
+                // Assuming we can filter by idFamilia if selected, or if we need rubro we need to match it.
+                // If it's hard to filter by rubro, we might need to check if p.idFamilia belongs to selectedRubroId.
+                const familiasDeRubro = this.familias.map(f => f.idFamilia);
+                matchRubro = familiasDeRubro.includes(p.idFamilia);
+            }
+
+            let matchFamilia = true;
+            if (this.selectedFamiliaId) {
+                matchFamilia = p.idFamilia === this.selectedFamiliaId;
+            }
+
+            let matchEstado = true;
+            if (this.selectedEstado !== '') {
+                const isActivo = this.selectedEstado === 'true';
+                matchEstado = p.activo === isActivo;
+            }
+
+            return matchSearch && matchRubro && matchFamilia && matchEstado;
+        });
+    }
+
+    clearFilters(): void {
+        this.searchTerm = '';
+        this.selectedRubroId = null;
+        this.selectedFamiliaId = null;
+        this.selectedEstado = '';
+        this.familias = [];
+        this.hasSearched = false;
+        this.filteredProductos = [...this.productos];
     }
 
     loadAtributosConfiguracion(idFamilia: number, existingValues?: any[]): void {

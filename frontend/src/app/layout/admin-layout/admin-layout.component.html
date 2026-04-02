@@ -20,16 +20,6 @@
                     </a>
                     <ul class="submenu" [class.open]="isInventoryMenuOpen">
                         <li>
-                            <a routerLink="/inventory/rubros-familias" routerLinkActive="active">
-                                Rubros y Familias
-                            </a>
-                        </li>
-                        <li>
-                            <a routerLink="/inventory/atributos" routerLinkActive="active">
-                                Atributos
-                            </a>
-                        </li>
-                        <li>
                             <a routerLink="/inventory/productos" routerLinkActive="active">
                                 Productos
                             </a>
@@ -61,6 +51,16 @@
                         <span class="arrow" [class.rotated]="isConfigMenuOpen">▼</span>
                     </a>
                     <ul class="submenu" [class.open]="isConfigMenuOpen">
+                        <li>
+                            <a routerLink="/inventory/rubros-familias" routerLinkActive="active">
+                                Rubros y Familias
+                            </a>
+                        </li>
+                        <li>
+                            <a routerLink="/inventory/atributos" routerLinkActive="active">
+                                Atributos
+                            </a>
+                        </li>
                         <li>
                             <a routerLink="/configuration/users" routerLinkActive="active">
                                 Usuarios
