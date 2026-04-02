@@ -50,8 +50,24 @@ namespace TesisInventory.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id, [FromQuery] string confirmacionNombre)
         {
-            await _productosService.DeleteProductoAsync(id, confirmacionNombre);
-            return NoContent();
+            try
+            {
+                await _productosService.DeleteProductoAsync(id, confirmacionNombre);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex) when (ex.Message.StartsWith("DESACTIVAR_SOLAMENTE"))
+            {
+                var mensaje = ex.Message.Split('|').Length > 1 ? ex.Message.Split('|')[1] : ex.Message;
+                return Conflict(new { message = mensaje, code = "DESACTIVAR_SOLAMENTE" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }

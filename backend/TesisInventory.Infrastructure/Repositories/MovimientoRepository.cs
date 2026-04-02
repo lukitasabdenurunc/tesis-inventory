@@ -120,5 +120,11 @@ namespace TesisInventory.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return movimiento;
         }
+
+        public async Task<bool> HasAnyMovimientoByProductoAsync(int idProducto)
+        {
+            return await _context.Movimiento
+                .AnyAsync(m => m.IdProducto == idProducto);
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace TesisInventory.Infrastructure.Repositories
                 .ThenInclude(f => f.Rubro)
                 .Include(p => p.ProductoAtributoValores)
                 .ThenInclude(pav => pav.Atributo)
+                .Include(p => p.Stocks)
                 .AsQueryable();
 
             if (!includeInactive)
@@ -39,6 +40,7 @@ namespace TesisInventory.Infrastructure.Repositories
                 .ThenInclude(f => f.Rubro)
                 .Include(p => p.ProductoAtributoValores)
                 .ThenInclude(pav => pav.Atributo)
+                .Include(p => p.Stocks)
                 .FirstOrDefaultAsync(p => p.IdProducto == id);
         }
 

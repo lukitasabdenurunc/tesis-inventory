@@ -17,6 +17,7 @@ namespace TesisInventory.Application.Services
         private readonly IRubroRepository _rubroRepository;
         private readonly ISedeRepository _sedeRepository;
         private readonly IStockRepository _stockRepository;
+        private readonly IMovimientoRepository _movimientoRepository;
 
         public ProductosService(
             IProductoRepository productoRepository,
@@ -24,7 +25,8 @@ namespace TesisInventory.Application.Services
             IAtributoRepository atributoRepository,
             IRubroRepository rubroRepository,
             ISedeRepository sedeRepository,
-            IStockRepository stockRepository)
+            IStockRepository stockRepository,
+            IMovimientoRepository movimientoRepository)
         {
             _productoRepository = productoRepository;
             _familiaRepository = familiaRepository;
@@ -32,6 +34,7 @@ namespace TesisInventory.Application.Services
             _rubroRepository = rubroRepository;
             _sedeRepository = sedeRepository;
             _stockRepository = stockRepository;
+            _movimientoRepository = movimientoRepository;
         }
 
         public async Task<IEnumerable<ProductoDto>> GetAllProductosAsync(bool includeInactive = false)
@@ -286,6 +289,37 @@ namespace TesisInventory.Application.Services
                 throw new InvalidOperationException("El nombre de confirmación no coincide exactamente con el producto.");
             }
 
+            // Verificar si tiene stock > 0 en alguna sede o movimientos en el historial
+            var tieneStock = await _stockRepository.HasAnyStockAsync(id);
+            var tieneMovimientos = await _movimientoRepository.HasAnyMovimientoByProductoAsync(id);
+
+            if (tieneStock || tieneMovimientos)
+            {
+                // Solo puede ser desactivado, no eliminado
+                throw new InvalidOperationException(
+                    "DESACTIVAR_SOLAMENTE|Este producto tiene " +
+                    (tieneStock ? "stock activo" : "") +
+                    (tieneStock && tieneMovimientos ? " y " : "") +
+                    (tieneMovimientos ? "movimientos en el historial" : "") +
+                    ". No se puede eliminar, únicamente puede ser desactivado.");
+            }
+
+            // Si no tiene stock ni movimientos, eliminar físicamente
+            // Primero eliminar registros de stock (con cantidad 0)
+            var stockRecords = await _stockRepository.GetAllStockByProductoAsync(id);
+            foreach (var stock in stockRecords)
+            {
+                await _stockRepository.RemoveStockAsync(stock);
+            }
+
+            // Eliminar valores de atributos
+            var atributos = await _productoRepository.GetAtributosValorByProductoAsync(id);
+            foreach (var attr in atributos)
+            {
+                await _productoRepository.RemoveProductoAtributoValorAsync(attr);
+            }
+
+            // Finalmente eliminar el producto
             await _productoRepository.DeleteProductoAsync(producto);
         }
 
@@ -366,6 +400,7 @@ namespace TesisInventory.Application.Services
                 Nombre = p.Nombre,
                 UnidadMedida = p.UnidadMedida,
                 Activo = p.Activo,
+                PuntoReposicion = p.Stocks.FirstOrDefault()?.PuntoReposicion ?? 0,
                 FechaCreacion = p.FechaCreacion,
                 FechaActualizacion = p.FechaActualizacion,
                 Atributos = p.ProductoAtributoValores.Select(pav => new ProductoAtributoValorDto

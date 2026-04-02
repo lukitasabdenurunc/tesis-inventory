@@ -415,11 +415,11 @@ export class ProductosComponent implements OnInit {
     deleteProducto(p: Producto): void {
         Swal.fire({
             title: 'Validación de Seguridad',
-            html: `Para dar de baja este producto, escriba textualmente su nombre:<br/><br/><b>${p.nombre}</b>`,
+            html: `Para eliminar este producto, escriba textualmente su nombre:<br/><br/><b>${p.nombre}</b>`,
             input: 'text',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Dar de baja',
+            confirmButtonText: 'Eliminar',
             cancelButtonText: 'Cancelar',
             preConfirm: (inputValue) => {
                 if (inputValue !== p.nombre) {
@@ -433,9 +433,46 @@ export class ProductosComponent implements OnInit {
                 this.productoService.delete(p.idProducto, p.nombre).subscribe({
                     next: () => {
                         this.loadProductos();
-                        Swal.fire('Baja Exitosa', 'El producto ha sido dado de baja (Lógica).', 'success');
+                        Swal.fire('Eliminado', 'El producto ha sido eliminado correctamente.', 'success');
                     },
-                    error: (err) => Swal.fire('Error', err.error?.message, 'error')
+                    error: (err) => {
+                        if (err.status === 409 && err.error?.code === 'DESACTIVAR_SOLAMENTE') {
+                            Swal.fire({
+                                title: 'No se puede eliminar',
+                                html: `${err.error.message}<br/><br/>¿Desea <b>desactivar</b> el producto en su lugar?`,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Sí, desactivar',
+                                cancelButtonText: 'Cancelar',
+                                confirmButtonColor: '#d97706'
+                            }).then((deactivateResult) => {
+                                if (deactivateResult.isConfirmed) {
+                                    this.productoService.update(p.idProducto, {
+                                        nombre: p.nombre,
+                                        unidadMedida: p.unidadMedida,
+                                        activo: false,
+                                        puntoReposicion: p.puntoReposicion || 0,
+                                        atributos: p.atributos?.map(a => ({
+                                            idAtributo: a.idAtributo,
+                                            valorTexto: a.valorTexto,
+                                            valorNumero: a.valorNumero,
+                                            valorDecimal: a.valorDecimal,
+                                            valorBool: a.valorBool,
+                                            valorLista: a.valorLista
+                                        })) || []
+                                    }).subscribe({
+                                        next: () => {
+                                            this.loadProductos();
+                                            Swal.fire('Desactivado', 'El producto ha sido desactivado exitosamente.', 'success');
+                                        },
+                                        error: (updateErr) => Swal.fire('Error', updateErr.error?.message || 'Error al desactivar', 'error')
+                                    });
+                                }
+                            });
+                        } else {
+                            Swal.fire('Error', err.error?.message || 'Hubo un error al eliminar', 'error');
+                        }
+                    }
                 });
             }
         });

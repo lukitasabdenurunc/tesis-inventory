@@ -19,5 +19,6 @@ namespace TesisInventory.Domain.Interfaces
             int skip = 0, 
             int take = 50);
         Task<Movimiento> AddMovimientoAsync(Movimiento movimiento);
+        Task<bool> HasAnyMovimientoByProductoAsync(int idProducto);
     }
 }

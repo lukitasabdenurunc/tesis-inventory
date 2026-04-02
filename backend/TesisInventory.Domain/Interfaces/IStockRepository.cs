@@ -28,5 +28,8 @@ namespace TesisInventory.Domain.Interfaces
         Task<Stock> AddStockAsync(Stock stock);
         Task UpdateStockAsync(Stock stock);
         Task UpdatePuntoReposicionAsync(int idProducto, int puntoReposicion);
+        Task<bool> HasAnyStockAsync(int idProducto);
+        Task<IEnumerable<Stock>> GetAllStockByProductoAsync(int idProducto);
+        Task RemoveStockAsync(Stock stock);
     }
 }
