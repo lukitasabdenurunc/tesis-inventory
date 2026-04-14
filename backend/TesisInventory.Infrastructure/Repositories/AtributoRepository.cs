@@ -53,8 +53,18 @@ namespace TesisInventory.Infrastructure.Repositories
 
         public async Task DeleteAtributoAsync(Atributo atributo)
         {
-            // Borrado fisico en cascada
-            _context.Atributo.Remove(atributo);
+            // ATR005 & ATR006: Cambiamos borrado físico por baja lógica
+            // Esto evita errores 500 por integridad referencial y permite que el atributo quede inactivo en lugar de desaparecer.
+            atributo.Activo = false;
+
+            // Desactivamos también las relaciones para ser consistentes y evitar problemas de integridad referencial lógica
+            var opciones = await _context.AtributoOpcion.Where(o => o.IdAtributo == atributo.IdAtributo).ToListAsync();
+            foreach (var o in opciones) o.Activo = false;
+
+            var asignaciones = await _context.FamiliaAtributo.Where(fa => fa.IdAtributo == atributo.IdAtributo).ToListAsync();
+            foreach (var fa in asignaciones) fa.Activo = false;
+
+            _context.Atributo.Update(atributo);
             await _context.SaveChangesAsync();
         }
 
@@ -64,7 +74,6 @@ namespace TesisInventory.Infrastructure.Repositories
         {
             return await _context.AtributoOpcion
                 .Where(o => o.IdAtributo == idAtributo && o.Activo)
-                .OrderBy(o => o.Orden)
                 .ToListAsync();
         }
 
@@ -101,7 +110,6 @@ namespace TesisInventory.Infrastructure.Repositories
                 .Include(fa => fa.Atributo)
                 .ThenInclude(a => a.Opciones)
                 .Where(fa => fa.IdFamilia == idFamilia && fa.Activo)
-                .OrderBy(fa => fa.Orden)
                 .ToListAsync();
         }
 

@@ -31,14 +31,12 @@ export interface AtributoOpcion {
     idAtributo: number;
     codigoOpcion: string;
     valor: string;
-    orden: number;
     activo: boolean;
 }
 
 export interface CreateAtributoOpcion {
     codigoOpcion: string;
     valor: string;
-    orden: number;
     activo: boolean;
 }
 
@@ -50,13 +48,11 @@ export interface FamiliaAtributo {
     nombreAtributo: string;
     tipoDatoAtributo: string;
     obligatorio: boolean;
-    orden: number;
     activo: boolean;
 }
 
 export interface CreateFamiliaAtributo {
     idAtributo: number;
     obligatorio: boolean;
-    orden: number;
     activo: boolean;
 }

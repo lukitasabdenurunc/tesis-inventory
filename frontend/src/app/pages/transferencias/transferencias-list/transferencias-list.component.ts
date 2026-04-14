@@ -8,6 +8,8 @@ import { ProductoService } from '../../../services/producto.service';
 import { AuthService } from '../../../services/auth';
 import { Transferencia, MotivoTransferencia } from '../../../models/transferencia.model';
 import { TransferenciaCardComponent } from '../transferencia-card/transferencia-card.component';
+import { SedeContextService } from '../../../services/sede-context.service';
+import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,6 +25,7 @@ export class TransferenciasListComponent implements OnInit {
   salientes: Transferencia[] = [];
   isLoading = false;
   isCreatorSede = false; 
+  private contextSub!: Subscription;
 
   // Modal Properties
   isModalOpen = false;
@@ -53,11 +56,19 @@ export class TransferenciasListComponent implements OnInit {
     private sedeService: SedeService,
     private stockService: StockService,
     private productoService: ProductoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private sedeContextService: SedeContextService
   ) {}
 
   ngOnInit(): void {
-    this.cargarDatos();
+    // Suscribirse a cambios de sede para recargar
+    this.contextSub = this.sedeContextService.sedeEnContexto$.subscribe(() => {
+      this.cargarDatos();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.contextSub) this.contextSub.unsubscribe();
   }
 
   cambiarPestana(tab: 'entrantes' | 'salientes') {

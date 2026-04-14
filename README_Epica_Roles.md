@@ -49,3 +49,11 @@ Esta épica extiende el módulo de Configuración para permitir la administraci�
 | Crear Rol "Test" | Aparece en lista. |
 | Eliminar Rol "Test" | Se elimina correctamente. |
 | Eliminar Rol "Admin" (Asignado) | **Error**: "No se puede eliminar un rol asignado a un usuario." |
+
+────────────────────────────────────────
+6.6 Decisiones de Implementación y Ajustes
+────────────────────────────────────────
+**[2026-04-14]**
+- **Descripción del cambio**: Configuración del rol "Administrador" como visualizador de múltiples sedes, gestionando el cambio de sede mediante un menú contextual reactivo (SedeContextService).
+- **Motivo técnico**: El rol administrador requería de la capacidad de alternar entre los contextos de stock y transferencias de cada sede directamente desde el front, sin modificar la estructura base de las tablas de datos vinculadas por idSede y enviando la nueva cabecera 'Sede-Contexto' configurada de manera global a través de un interceptor.
+- **Impacto funcional**: Impacta de manera positiva la gestión de los administradores proveyendo una UI transparente global en el TopBar. El resto de los roles sigue restringido al idSede embebido en su propio claim original sin romper las lógicas pre-establecidas.

@@ -6,6 +6,8 @@ import { StockService } from '../../../services/stock.service';
 import { RubroService } from '../../../services/rubro.service';
 import { FamiliaService } from '../../../services/familia.service';
 import { SedeService } from '../../../services/sede.service';
+import { SedeContextService } from '../../../services/sede-context.service';
+import { Subscription } from 'rxjs';
 import { IncrementarStockDto, RegistrarConsumoDto, RegistrarTransferenciaDto, Stock } from '../../../models/stock.model';
 import { Rubro } from '../../../models/rubro.model';
 import { Familia } from '../../../models/familia.model';
@@ -22,6 +24,8 @@ export class StockComponent implements OnInit {
   rubros: Rubro[] = [];
   familias: Familia[] = [];
   sedes: any[] = [];
+  
+  private contextSub!: Subscription;
 
   // Paginación
   totalCount: number = 0;
@@ -66,13 +70,23 @@ export class StockComponent implements OnInit {
     private stockService: StockService,
     private rubroService: RubroService,
     private familiaService: FamiliaService,
-    private sedeService: SedeService
+    private sedeService: SedeService,
+    private sedeContextService: SedeContextService
   ) { }
 
   ngOnInit(): void {
     this.loadRubros();
     this.loadSedes();
-    this.loadStocks();
+    // Suscribirse a cambios de sede para recargar
+    this.contextSub = this.sedeContextService.sedeEnContexto$.subscribe(() => {
+      this.hasSearched = false;
+      this.page = 1;
+      this.loadStocks();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.contextSub) this.contextSub.unsubscribe();
   }
 
   loadRubros(): void {

@@ -6,7 +6,6 @@ namespace TesisInventory.Domain.Entities
         public int IdAtributo { get; set; }
         public string CodigoOpcion { get; set; } = string.Empty;
         public string Valor { get; set; } = string.Empty;
-        public int Orden { get; set; } = 0;
         public bool Activo { get; set; } = true;
 
         // Propiedades de navegación

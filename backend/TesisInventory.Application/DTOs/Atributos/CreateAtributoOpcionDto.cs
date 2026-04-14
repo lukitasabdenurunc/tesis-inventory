@@ -10,7 +10,6 @@ namespace TesisInventory.Application.DTOs.Atributos
         [Required(ErrorMessage = "El valor es obligatorio.")]
         public string Valor { get; set; } = string.Empty;
 
-        public int Orden { get; set; } = 0;
         public bool Activo { get; set; } = true;
     }
 }

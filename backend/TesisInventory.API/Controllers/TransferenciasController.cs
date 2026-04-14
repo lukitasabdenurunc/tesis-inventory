@@ -27,8 +27,26 @@ namespace TesisInventory.API.Controllers
 
         private int GetCurrentUserSedeId()
         {
+            int sedeClaimId = 0;
             var sedeIdStr = User.FindFirstValue("sede_id");
-            return int.TryParse(sedeIdStr, out var id) ? id : 0;
+            if (int.TryParse(sedeIdStr, out var id))
+            {
+                sedeClaimId = id;
+            }
+
+            var roleClaim = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? User.FindFirstValue("nombreRol");
+            bool isAdmin = (roleClaim == "Admin" || roleClaim == "Administrador");
+
+            // Priorizar el Sede-Contexto que envía el front (Interceptor)
+            if (Request.Headers.TryGetValue("Sede-Contexto", out var sedeContexto) && int.TryParse(sedeContexto, out int headerSedeId))
+            {
+                if (isAdmin) return headerSedeId;
+                if (headerSedeId == sedeClaimId) return headerSedeId;
+            }
+            
+            if (sedeClaimId > 0) return sedeClaimId;
+
+            return 0;
         }
 
         [HttpGet("entrantes")]

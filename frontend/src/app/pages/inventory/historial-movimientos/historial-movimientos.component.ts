@@ -5,7 +5,9 @@ import { StockService } from '../../../services/stock.service';
 import { RubroService } from '../../../services/rubro.service';
 import { FamiliaService } from '../../../services/familia.service';
 import { UserService } from '../../../services/user.service';
+import { SedeContextService } from '../../../services/sede-context.service';
 import { Movimiento } from '../../../models/stock.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-historial-movimientos',
@@ -16,6 +18,7 @@ import { Movimiento } from '../../../models/stock.model';
 })
 export class HistorialMovimientosComponent implements OnInit {
 
+  private contextSub!: Subscription;
   movimientos: Movimiento[] = [];
   
   // Filters
@@ -49,14 +52,23 @@ export class HistorialMovimientosComponent implements OnInit {
     private stockService: StockService,
     private rubroService: RubroService,
     private familiaService: FamiliaService,
-    private userService: UserService
+    private userService: UserService,
+    private sedeContextService: SedeContextService
   ) {}
 
   ngOnInit(): void {
     this.verifySedeContext();
     this.loadRubros();
     this.loadUsuarios();
-    this.search();
+    
+    this.contextSub = this.sedeContextService.sedeEnContexto$.subscribe(() => {
+      this.page = 1;
+      this.search();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.contextSub) this.contextSub.unsubscribe();
   }
 
   // Provisional check for Sede

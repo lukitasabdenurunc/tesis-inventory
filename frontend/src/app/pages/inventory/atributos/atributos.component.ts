@@ -30,7 +30,7 @@ export class AtributosComponent implements OnInit {
 
     // Opciones LIST
     opciones: AtributoOpcion[] = [];
-    nuevaOpcionForm: CreateAtributoOpcion = { codigoOpcion: '', valor: '', orden: 1, activo: true };
+    nuevaOpcionForm: CreateAtributoOpcion = { codigoOpcion: '', valor: '', activo: true };
 
     // Asignacion Familia
     rubros: Rubro[] = [];
@@ -39,7 +39,6 @@ export class AtributosComponent implements OnInit {
     selectedFamiliaId: number | null = null;
     atributosDeFamilia: FamiliaAtributo[] = [];
     configObligatorio = false;
-    configOrden = 1;
 
     get selectedFamiliaNombre(): string {
         const f = this.familiasSelect.find(fam => fam.idFamilia === this.selectedFamiliaId);
@@ -172,7 +171,7 @@ export class AtributosComponent implements OnInit {
         this.atributoService.addOpcion(this.selectedAtributo.idAtributo, this.nuevaOpcionForm).subscribe({
             next: () => {
                 this.loadOpciones(this.selectedAtributo!.idAtributo);
-                this.nuevaOpcionForm = { codigoOpcion: '', valor: '', orden: this.opciones.length + 2, activo: true };
+                this.nuevaOpcionForm = { codigoOpcion: '', valor: '', activo: true };
             },
             error: (err) => Swal.fire('Error', err.error?.message, 'error')
         });
@@ -229,7 +228,6 @@ export class AtributosComponent implements OnInit {
         const dto = {
             idAtributo: this.selectedAtributo.idAtributo,
             obligatorio: this.configObligatorio,
-            orden: this.configOrden,
             activo: true
         };
 
@@ -237,7 +235,6 @@ export class AtributosComponent implements OnInit {
             next: () => {
                 this.loadAtributosDeFamilia(this.selectedFamiliaId!);
                 Swal.fire('Éxito', 'Atributo configurado a familia', 'success');
-                this.configOrden++;
             },
             error: (err) => Swal.fire('Error', err.error?.message, 'error')
         });

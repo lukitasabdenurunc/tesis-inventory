@@ -32,3 +32,9 @@ También incluye un sistema de autogeneración de SKU (Stock Keeping Unit).
 2. Usuario crea Familia "Tazas" englobada en "Bazar".
 3. Se crea el atributo maestro "Capacidad" (NUMBER, ml) y se asinga obligatoriamente a "Tazas".
 4. Al ir a agregar un inventario, eligen rubro/familia, el formulario pide la Capacidad obligatoria. Luego, el servidor arroja el SKU auto-armado y persiste el catálogo.
+
+## Decisiones de Implementación y Ajustes
+**[2026-04-14]**
+- **Descripción del cambio**: Implementación de contexto global (interceptor HTTP y SedeContextService en UI) para el manejo dinámico de la sede seleccionada en componentes dependientes del inventario (Stock / Movimientos).
+- **Motivo técnico**: Se optó por una arquitectura reactiva (RxJS BehaviorSubject) en sustitución de inyección manual de parámetros en Sede para asegurar la recarga automática (auto-refresco y refetching) de los grids de datos en toda la aplicación Inventario cuando el Administrador cambia la sede en el layout global.
+- **Impacto funcional**: Mejora sustancial en la UX del Administrador al consultar inventarios sedes-afines. Los grids de datos listarán estricta y únicamente el stock y transferencias correspondientes a la sede actualmente dispuesta en la top-bar por el Admin, transparentando la operación de consulta en multi-sede.

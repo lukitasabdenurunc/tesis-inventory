@@ -52,7 +52,15 @@ namespace TesisInventory.Infrastructure.Repositories
 
         public async Task DeleteAsync(Rubro rubro)
         {
-            rubro.Activo = false; // Logic delete
+            rubro.Activo = false; // Baja lógica
+            
+            // RF004: Desactivar también las familias asociadas
+            var familias = await _context.Familia.Where(f => f.IdRubro == rubro.IdRubro).ToListAsync();
+            foreach (var familia in familias)
+            {
+                familia.Activo = false;
+            }
+
             _context.Rubro.Update(rubro);
             await _context.SaveChangesAsync();
         }

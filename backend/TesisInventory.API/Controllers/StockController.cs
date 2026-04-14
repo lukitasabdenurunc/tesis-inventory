@@ -34,16 +34,27 @@ namespace TesisInventory.API.Controllers
         // Simularemos que el ID de Sede se pasa como parámetro o se obtiene del claim "SedeId".
         private int GetCurrentSedeId()
         {
+            int sedeClaimId = 0;
             var sedeIdClaim = User.FindFirst("sede_id")?.Value;
-            if (int.TryParse(sedeIdClaim, out int sedeId))
+            if (int.TryParse(sedeIdClaim, out int sId))
             {
-                return sedeId;
+                sedeClaimId = sId;
             }
-            // Fallback
+
+            var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value ?? User.FindFirst("nombreRol")?.Value;
+            bool isAdmin = (roleClaim == "Admin" || roleClaim == "Administrador");
+
+            // Priorizar el Sede-Contexto que envía el front (Interceptor)
             if (Request.Headers.TryGetValue("Sede-Contexto", out var sedeContexto) && int.TryParse(sedeContexto, out int headerSedeId))
             {
-                return headerSedeId;
+                if (isAdmin) return headerSedeId; // Administradores pueden ver/actuar sobre cualquier sede seleccionada
+                
+                // Si no es admin, ignoramos el header si intenta spoofear y forzamos su sede
+                if (headerSedeId == sedeClaimId) return headerSedeId;
             }
+
+            if (sedeClaimId > 0) return sedeClaimId;
+
             throw new UnauthorizedAccessException("Debe especificar la Sede en Contexto.");
         }
 

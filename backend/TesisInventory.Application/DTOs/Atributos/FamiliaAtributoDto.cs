@@ -11,7 +11,6 @@ namespace TesisInventory.Application.DTOs.Atributos
         public string NombreAtributo { get; set; } = string.Empty;
         public string TipoDatoAtributo { get; set; } = string.Empty;
         public bool Obligatorio { get; set; }
-        public int Orden { get; set; }
         public bool Activo { get; set; }
     }
 }

@@ -136,7 +136,6 @@ namespace TesisInventory.Application.Services
                 IdAtributo = o.IdAtributo,
                 CodigoOpcion = o.CodigoOpcion,
                 Valor = o.Valor,
-                Orden = o.Orden,
                 Activo = o.Activo
             });
         }
@@ -152,7 +151,6 @@ namespace TesisInventory.Application.Services
                 IdAtributo = idAtributo,
                 CodigoOpcion = createDto.CodigoOpcion,
                 Valor = createDto.Valor,
-                Orden = createDto.Orden,
                 Activo = createDto.Activo
             };
 
@@ -163,7 +161,6 @@ namespace TesisInventory.Application.Services
                 IdAtributo = newOp.IdAtributo,
                 CodigoOpcion = newOp.CodigoOpcion,
                 Valor = newOp.Valor,
-                Orden = newOp.Orden,
                 Activo = newOp.Activo
             };
         }
@@ -189,7 +186,6 @@ namespace TesisInventory.Application.Services
                 NombreAtributo = fa.Atributo?.Nombre ?? "",
                 TipoDatoAtributo = fa.Atributo?.TipoDato ?? "",
                 Obligatorio = fa.Obligatorio,
-                Orden = fa.Orden,
                 Activo = fa.Activo
             });
         }
@@ -209,7 +205,6 @@ namespace TesisInventory.Application.Services
                 // Reactivarlo
                 exists.Activo = true;
                 exists.Obligatorio = req.Obligatorio;
-                exists.Orden = req.Orden;
                 exists.FechaActualizacion = DateTime.UtcNow;
                 await _atributoRepository.UpdateFamiliaAtributoAsync(exists);
                 
@@ -222,7 +217,6 @@ namespace TesisInventory.Application.Services
                     NombreAtributo = attr.Nombre,
                     TipoDatoAtributo = attr.TipoDato,
                     Obligatorio = exists.Obligatorio,
-                    Orden = exists.Orden,
                     Activo = exists.Activo
                 };
             }
@@ -232,7 +226,6 @@ namespace TesisInventory.Application.Services
                 IdFamilia = idFamilia,
                 IdAtributo = req.IdAtributo,
                 Obligatorio = req.Obligatorio,
-                Orden = req.Orden,
                 Activo = req.Activo,
                 FechaCreacion = DateTime.UtcNow,
                 FechaActualizacion = DateTime.UtcNow
@@ -249,7 +242,6 @@ namespace TesisInventory.Application.Services
                 NombreAtributo = attr.Nombre,
                 TipoDatoAtributo = attr.TipoDato,
                 Obligatorio = newFa.Obligatorio,
-                Orden = newFa.Orden,
                 Activo = newFa.Activo
             };
         }
@@ -281,7 +273,6 @@ namespace TesisInventory.Application.Services
                 NombreAtributo = fa.Atributo?.Nombre ?? "",
                 TipoDatoAtributo = fa.Atributo?.TipoDato ?? "",
                 Obligatorio = fa.Obligatorio,
-                Orden = fa.Orden,
                 Activo = fa.Activo
             });
         }

@@ -8,7 +8,6 @@ namespace TesisInventory.Application.DTOs.Atributos
         public int IdAtributo { get; set; }
         
         public bool Obligatorio { get; set; } = false;
-        public int Orden { get; set; } = 0;
         public bool Activo { get; set; } = true;
     }
 }

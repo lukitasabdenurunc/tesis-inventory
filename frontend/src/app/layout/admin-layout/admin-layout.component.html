@@ -95,6 +95,17 @@
     <!-- Main Content -->
     <main class="main-content">
         <header class="top-bar">
+            <div class="top-bar-left">
+                <!-- Select de Sede en Contexto visible sólo para Admin -->
+                <div *ngIf="isAdmin" class="sede-context-selector">
+                    <label for="sedeContextSelect"><i class="icon-map-pin"></i> Sede en Contexto:</label>
+                    <select id="sedeContextSelect" [ngModel]="selectedSedeId" (change)="onSedeChange($event)">
+                        <option *ngFor="let sede of sedes" [value]="sede.idSede">
+                            {{ sede.nombreSede }}
+                        </option>
+                    </select>
+                </div>
+            </div>
             <!-- Future: Breadcrumbs or User Profile snippet -->
         </header>
         <div class="content-area">

@@ -89,12 +89,19 @@ namespace TesisInventory.Application.Services
                     throw new InvalidOperationException("Ya existe otro rubro con este código.");
             }
 
+            bool wasActive = rubro.Activo;
             rubro.CodigoRubro = updateRubroDto.CodigoRubro;
             rubro.Nombre = updateRubroDto.Nombre;
             rubro.Activo = updateRubroDto.Activo;
             rubro.FechaActualizacion = DateTime.UtcNow;
 
             await _rubroRepository.UpdateAsync(rubro);
+
+            // RF004: Si se desactivó el rubro, desactivar todas sus familias
+            if (wasActive && !rubro.Activo)
+            {
+                await _rubroRepository.DeleteAsync(rubro); // El método DeleteAsync ya maneja la desactivación de familias en cascada
+            }
 
             return new RubroDto
             {
